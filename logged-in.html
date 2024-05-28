@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game</title>
+    <style>
+      div {
+        border: 1px solid black;
+      }
+      #layout {
+        margin: 10px;
+        width: 50%;
+        height: 60vh;
+        float: left;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        gap: 0px 0px;
+      }
+      #cell {
+        background-color: skyblue;
+      }
+      #info {
+        padding: 1%;
+        margin: 5px;
+        width: 20%;
+        height: 60vh;
+        float: left;
+      }
+      #chat {
+        width: 20%;
+        margin: 5px;
+        position: relative;
+        padding: 1%;
+        height: 60vh;
+        float: left;
+      }
+      img {
+        margin: 2px;
+      }
+      #enter {
+        position: absolute;
+        bottom: 0;
+      }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <p style="text-align: right" title="playername">
+      <span id="username" style="padding:8px; border-radius: 20px;"></span>
+    </p>
+
+    <p style="text-align: right"><button onclick="admin()">Admin</button>  <button onclick="logout()">Logout</button>  </p>
+    <br /><br />
+    <div id="layout"></div>
+
+    <div id="info"></div>
+
+    <div id="chat">
+      <div id="chat_display" style="border: none; overflow-y: scroll; height: 250px;"></div>
+      <p id="enter" onkeypress="if(event.keyCode == 13) update_chat();">Enter text: <input type="text" id="msg"></p>
+    </div>
+
+    <script>
+      //user name
+      let name = $.ajax({
+        type: "post",
+        url: "php/board.php",
+        data: {
+          function_name: "getName",
+        },
+        async: false
+      }).responseText;
+      
+      //user team
+      let team = $.ajax({
+        type: "post",
+        url: "php/board.php",
+        data: {
+          function_name: "getTeam",
+        },
+        async: false
+      }).responseText;
+
+      //username and background color
+      document.getElementById("username").innerHTML = name;
+      document.getElementById("username").title = name;
+      document.getElementById("username").style.backgroundColor = team;
+
+      //create board
+      $.ajax({
+        type: "post",
+        url: "php/board.php",
+        data: {
+          function_name: "create_board",
+        },
+      });
+
+      //display board
+      var refresh = setInterval(function(){
+        $.ajax({
+            type: "post",
+            url: "php/board.php",
+            data: {
+              function_name: "display_board",
+              name: name,
+              color: team
+            },
+            success: function (response) {
+              cells = response;
+              document.getElementById("layout").innerHTML = cells;
+            },
+        });
+      },800)
+
+      //click handling -> update board
+      function update_board(i){
+        $.ajax({
+            type: "post",
+            url: "php/board.php",
+            data: {
+              function_name: "update_board",
+              name: name,
+              color: team,
+              index: i
+            },
+        });
+      }
+
+      //display chat
+      var refresh = setInterval(function(){
+        $.ajax({
+            type: "post",
+            url: "php/chat.php",
+            data: {
+              function_name: "display_chat",
+            },
+            success: function (response) {
+              chat = response;
+              document.getElementById("chat_display").innerHTML = chat;
+            },
+        });
+      },800)
+
+      //enter handling -> update chat
+      function update_chat(){
+        msg = document.getElementById("msg").value;
+        $.ajax({
+            type: "post",
+            url: "php/chat.php",
+            data: {
+              function_name: "update_chat",
+              name: name,
+              team: team,
+              message: msg
+            },
+            success: function(response){
+              document.getElementById("msg").value = "";
+            }
+        });
+      }
+      
+      //statistics display
+      var refresh = setInterval(function(){
+        $.ajax({
+            type: "post",
+            url: "php/board.php",
+            data: {
+              function_name: "display_stats",
+              username: name,
+              team: team
+            },
+            success: function (response) {
+              stats = response;
+              document.getElementById("info").innerHTML = stats;
+            },
+        });
+      },800)
+
+      //logout handling
+      function logout(){
+        $.ajax({
+            type: "post",
+            url: "php/board.php",
+            data: {
+              function_name: "logout",
+              user: name,
+            },
+            success: function (response) {
+              window.location.replace("landing-page.html");
+            },
+        });
+      }
+
+      //admin 
+      function admin(){
+        $.ajax({
+            type: "post",
+            url: "php/board.php",
+            data: {
+              function_name: "admin",
+            },
+        });
+      }
+
+    </script>
+  </body>
+</html>

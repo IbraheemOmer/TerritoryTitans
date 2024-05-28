@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+    <script>
+        function signUp(){
+            name = document.getElementById("player_name").value;
+            pw = document.getElementById("password").value;
+            cpw = document.getElementById("confirm_password").value;
+            tm = document.getElementById("team").value;
+        
+            $.ajax({
+            type: 'post',
+            url: 'php/sign-up.php',
+            data: {
+                player_name: name,
+                password: pw,
+                confirm_password: cpw,
+                team: tm
+            },
+            success: function(response){
+                command = response;
+                if (command == "safe"){
+                    window.location.replace("logged-in.html");
+                }
+                else{
+                    alert(command);
+                    document.getElementById("player_name").value = "";
+                    document.getElementById("password").value = "";
+                    document.getElementById("confirm_password").value ="";
+                }
+            },
+        })
+        }
+    </script>
+</head>
+<body>
+    <table>
+        <tr><td>Player name:</td><td><input type="text" id="player_name" name="player_name"></td></tr>
+        <tr><td>Password:</td><td> <input type="text" id="password" name="password" ></td></tr>
+        <tr><td>Confirm Password:</td><td> <input type="text" id="confirm_password" name="confirm_password"></td></tr>
+        <tr><td>Pick your team:</td><td> <select id="team"><option>Red</option><option>Green</option><option>Yellow</option></select></td></tr>
+        </table>
+        <br></br>
+        <button onclick="signUp()">Sign me up!</button>
+</body>
+</html>

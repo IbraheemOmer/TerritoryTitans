@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+    <script>
+        function logIn(){
+            name = document.getElementById("player_name").value;
+            pw = document.getElementById("password").value;
+        
+            $.ajax({
+            type: 'post',
+            url: 'php/login.php',
+            data: {
+                player_name: name,
+                password: pw
+            },
+            success: function(response){
+                command = response;
+                if (command == "safe"){
+                    window.location.replace("logged-in.html");
+                }
+                else{
+                    alert(command);
+                    document.getElementById("player_name").value = "";
+                    document.getElementById("password").value = "";
+                }
+            },
+        })
+        }
+    </script>
+</head>
+<body>
+    <table>
+        <tr><td>Player name:</td><td><input type="text" id = "player_name" name="player_name"></td></tr>
+        <tr><td>Password:</td><td> <input type="text" id="password" name="password"></td></tr>
+        </table>
+        <br></br>
+        <button onclick="logIn()">Log in</button>
+</body>
+</html>
